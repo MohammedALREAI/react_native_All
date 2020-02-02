@@ -1,14 +1,20 @@
-
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const rootDir = path.join(__dirname, '..');
 const webpackEnv = process.env.NODE_ENV || 'development';
-
+const babelLoader = `babel?${JSON.stringify({
+     presets: ['react-native'],                    // Use default babel-presets-react-native
+     plugins: [
+          'syntax-trailing-function-commas',          // Fix a extra comma in react-native
+          'transform-flow-strip-types',               // Strip flow types in react-native source code.
+          require.resolve('react-native-webpack/fixRequireIssueLoader'),  // Fix a direct usage of require in react-native which caused issue.
+     ],
+})}`;
 module.exports = {
      mode: webpackEnv,
      entry: {
-          app: path.join(rootDir, './index.web.ts'),
+          app: path.join(rootDir, './App'),
      },
      output: {
           path: path.resolve(rootDir, 'dist'),
@@ -18,9 +24,9 @@ module.exports = {
      module: {
           rules: [
                {
-                    test: /\.(tsx|ts|jsx|js|mjs)$/,
+                    test: /\.(js|jsx)$/,
                     exclude: /node_modules/,
-                    loader: 'ts-loader',
+                    loader: [babelLoader],
                },
           ],
      },
@@ -32,12 +38,7 @@ module.exports = {
      ],
      resolve: {
           extensions: [
-               '.web.tsx',
-               '.web.ts',
-               '.tsx',
-               '.ts',
-               '.web.jsx',
-               '.web.js',
+
                '.jsx',
                '.js',
           ], // read files in fillowing order
